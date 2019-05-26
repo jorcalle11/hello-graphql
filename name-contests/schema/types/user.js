@@ -3,14 +3,15 @@ const {
   GraphQLID,
   GraphQLNonNull,
   GraphQLString,
-  GraphQLList
+  GraphQLList,
+  GraphQLInt
 } = require('graphql');
 
 const ContestType = require('./contest');
 const data = require('../../data');
 
 module.exports = new GraphQLObjectType({
-  name: 'MeType',
+  name: 'User',
 
   fields: {
     id: { type: GraphQLID },
@@ -28,6 +29,18 @@ module.exports = new GraphQLObjectType({
       resolve: (subTree, args, context) => {
         const userId = subTree.id;
         return data(context.mysqlPool).getContestsByUserId(userId);
+      }
+    },
+    namesCount: {
+      type: GraphQLInt,
+      resolve: (subtree, args, context, { fieldName }) => {
+        return data(context.mongoPool).getCountsByUserId(subtree.id, fieldName);
+      }
+    },
+    votesCount: {
+      type: GraphQLInt,
+      resolve: (subtree, args, context, { fieldName }) => {
+        return data(context.mongoPool).getCountsByUserId(subtree.id, fieldName);
       }
     }
   }

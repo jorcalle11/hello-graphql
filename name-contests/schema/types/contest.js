@@ -4,10 +4,14 @@ const {
   GraphQLObjectType,
   GraphQLNonNull,
   GraphQLID,
-  GraphQLString
+  GraphQLString,
+  GraphQLList
 } = require('graphql');
 
-const ContestStatusType = require('./contestStatusType');
+const data = require('../../data');
+
+const ContestStatusType = require('./contestStatus');
+const NameType = require('./name');
 
 module.exports = new GraphQLObjectType({
   name: 'ContestType',
@@ -18,6 +22,12 @@ module.exports = new GraphQLObjectType({
     description: { type: GraphQLString },
     status: { type: GraphQLNonNull(ContestStatusType) },
     createdAt: { type: GraphQLNonNull(GraphQLString) },
-    createdBy: { type: GraphQLNonNull(GraphQLString) }
+    createdBy: { type: GraphQLNonNull(GraphQLString) },
+    names: {
+      type: new GraphQLList(NameType),
+      resolve: (subTree, args, context) => {
+        return data(context.mysqlPool).getNames(subTree.id);
+      }
+    }
   }
 });
