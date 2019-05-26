@@ -4,8 +4,8 @@ const knex = require('knex');
 let instance = null;
 
 function connect() {
+  console.log('[MYSQL CONNECTION]: is connected?', instance !== null);
   if (!instance) {
-    console.log('creating knex instance...');
     const connectionOption = {
       host: process.env.DB_HOST || '127.0.0.1',
       user: process.env.DB_USER || 'root',
@@ -15,8 +15,8 @@ function connect() {
 
     instance = knex({
       client: 'mysql',
-      connection: connectionOption,
-      debug: true
+      connection: connectionOption
+      // debug: true
     });
 
     poolStats('---this is the pool conection---');
@@ -36,10 +36,11 @@ function poolStats(msg) {
 
 function disconnect() {
   if (!instance) return;
-  console.log('Destroying knex connections...');
+  console.log('[MYSQL CONNECTION]: Destroying connections...');
   poolStats('---this is the pool conection before to destroy---');
+
   return instance.destroy().then(() => {
-    console.log('conection destroyed');
+    console.log('mysql conections closed');
     instance = null;
   });
 }
