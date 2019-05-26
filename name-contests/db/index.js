@@ -1,5 +1,6 @@
 'use strict';
 
 module.exports = {
-  mysql: require('./mysqlConnection')
+  mysql: require('./mysqlConnection'),
+  mongo: require('./mongoConnection')
 };
