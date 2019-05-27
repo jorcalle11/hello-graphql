@@ -7,7 +7,6 @@ const {
   GraphQLString
 } = require('graphql');
 
-const data = require('../data');
 const MeType = require('./types/user');
 
 // the root query is where in the data graph we can start asking questions
@@ -22,7 +21,7 @@ const RootQueryType = new GraphQLObjectType({
         key: { type: new GraphQLNonNull(GraphQLString) }
       },
       resolve: (subTree, args, context) => {
-        return data(context.mysqlPool).getUserByApiKey(args.key);
+        return context.loaders.usersByKeys.load(args.key);
       }
     }
   }

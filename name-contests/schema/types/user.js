@@ -28,7 +28,7 @@ module.exports = new GraphQLObjectType({
       type: new GraphQLList(ContestType),
       resolve: (subTree, args, context) => {
         const userId = subTree.id;
-        return data(context.mysqlPool).getContestsByUserId(userId);
+        return context.loaders.getContestsByUserIds.load(userId);
       }
     },
     namesCount: {

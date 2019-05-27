@@ -8,8 +8,6 @@ const {
   GraphQLList
 } = require('graphql');
 
-const data = require('../../data');
-
 const ContestStatusType = require('./contestStatus');
 const NameType = require('./name');
 
@@ -26,7 +24,7 @@ module.exports = new GraphQLObjectType({
     names: {
       type: new GraphQLList(NameType),
       resolve: (subTree, args, context) => {
-        return data(context.mysqlPool).getNames(subTree.id);
+        return context.loaders.namesByContestIds.load(subTree.id);
       }
     }
   }

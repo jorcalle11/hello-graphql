@@ -2,45 +2,51 @@
 
 const humps = require('humps');
 
+const utils = require('../utils');
+
 module.exports = function main(dbConnection) {
-  function getUserByApiKey(key) {
+  function getUsersByApiKeys(keys) {
     const query = dbConnection
       .select('*')
       .from('users')
-      .where('api_key', key);
+      .whereIn('api_key', keys);
 
     console.log(query.toQuery());
-    return query.then(rows => humps.camelizeKeys(rows.shift()));
+    return query.then(rows => utils.orderedFor(rows, keys, 'apiKey'));
   }
 
-  function getUserById(userId) {
+  function getUsersByIds(userIds = []) {
     const query = dbConnection
       .select('*')
       .from('users')
-      .where('id', userId);
+      .whereIn('id', userIds);
 
     console.log(query.toQuery());
-    return query.then(rows => humps.camelizeKeys(rows.shift()));
+    return query.then(rows => utils.orderedFor(rows, userIds, 'id'));
   }
 
-  function getContestsByUserId(userId) {
+  function getContestsByUserIds(userIds = []) {
     const query = dbConnection
       .select('*')
       .from('contests')
-      .where('created_by', userId);
+      .whereIn('created_by', userIds);
 
     console.log(query.toQuery());
-    return query.map(row => humps.camelizeKeys(row));
+    return query.then(rows =>
+      utils.orderedFor(rows, userIds, 'createdBy', false)
+    );
   }
 
-  function getNames(contestId) {
+  function getNamesByContestIds(contestIds) {
     const query = dbConnection
       .select('*')
       .from('names')
-      .where('contest_id', contestId);
+      .whereIn('contest_id', contestIds);
 
     console.log(query.toQuery());
-    return query.map(row => humps.camelizeKeys(row));
+    return query.then(rows =>
+      utils.orderedFor(rows, contestIds, 'contestId', false)
+    );
   }
 
   function getCountsByUserId(userId, fieldName) {
@@ -51,10 +57,10 @@ module.exports = function main(dbConnection) {
   }
 
   return {
-    getUserByApiKey,
-    getContestsByUserId,
+    getContestsByUserIds,
     getCountsByUserId,
-    getNames,
-    getUserById
+    getNamesByContestIds,
+    getUsersByApiKeys,
+    getUsersByIds
   };
 };

@@ -2,9 +2,11 @@
 
 const express = require('express');
 const graphqlHTTP = require('express-graphql');
+const DataLoader = require('dataloader');
 
 const schema = require('./schema');
 const db = require('./db');
+const data = require('./data');
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -12,13 +14,22 @@ const port = process.env.PORT || 4000;
 app.use('/graphql', async (req, res) => {
   const mysqlPool = db.mysql.connect();
   const mongoPool = await db.mongo.connect();
+  const aja = data(mysqlPool);
+
+  // the goal here is minimize the queries a single request is doing
+  const loaders = {
+    usersByIds: new DataLoader(aja.getUsersByIds),
+    usersByKeys: new DataLoader(aja.getUsersByApiKeys),
+    namesByContestIds: new DataLoader(aja.getNamesByContestIds),
+    getContestsByUserIds: new DataLoader(aja.getContestsByUserIds)
+  };
 
   graphqlHTTP({
     schema,
     pretty: true,
     graphiql: true,
     customFormatErrorFn,
-    context: { mysqlPool, mongoPool }
+    context: { mongoPool, loaders }
   })(req, res);
 });
 
@@ -37,13 +48,12 @@ function startServer() {
   });
 }
 
-function disconnectDbs() {
-  db.mysql.disconnect();
-  db.mongo.disconnect();
+async function disconnectDbs() {
+  await db.mysql.disconnect();
+  await db.mongo.disconnect();
 }
 
 function customFormatErrorFn(error) {
-  disconnectDbs();
   return {
     message: error.message,
     locations: error.locations,
@@ -52,8 +62,8 @@ function customFormatErrorFn(error) {
   };
 }
 
-function existWithError(error) {
-  disconnectDbs();
+async function existWithError(error) {
+  await disconnectDbs();
   console.error(error.message);
   console.error(error.stack || '');
   process.exit(1);

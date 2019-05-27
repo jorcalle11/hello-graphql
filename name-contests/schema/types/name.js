@@ -7,8 +7,6 @@ const {
   GraphQLString
 } = require('graphql');
 
-const data = require('../../data');
-
 module.exports = new GraphQLObjectType({
   name: 'Name',
 
@@ -23,7 +21,7 @@ module.exports = new GraphQLObjectType({
       createdBy: {
         type: new GraphQLNonNull(UserType),
         resolve: (subTree, args, context) => {
-          return data(context.mysqlPool).getUserById(subTree.createdBy);
+          return context.loaders.usersByIds.load(subTree.createdBy);
         }
       }
     };
