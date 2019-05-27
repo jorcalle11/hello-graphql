@@ -31,6 +31,12 @@ module.exports = new GraphQLObjectType({
         return context.loaders.getContestsByUserIds.load(userId);
       }
     },
+    contestsCount: {
+      type: GraphQLInt,
+      resolve: (subtree, args, context, { fieldName }) => {
+        return data(context.mongoPool).getCountsByUserId(subtree.id, fieldName);
+      }
+    },
     namesCount: {
       type: GraphQLInt,
       resolve: (subtree, args, context, { fieldName }) => {

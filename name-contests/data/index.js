@@ -50,6 +50,8 @@ module.exports = function main(dbConnection) {
   }
 
   function getCountsByUserId(userId, fieldName) {
+    console.log(`db.collection('user').findOne({userId: ${userId}})`);
+
     return dbConnection
       .collection('users')
       .findOne({ userId })
