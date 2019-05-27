@@ -14,14 +14,14 @@ const port = process.env.PORT || 4000;
 app.use('/graphql', async (req, res) => {
   const mysqlPool = db.mysql.connect();
   const mongoPool = await db.mongo.connect();
-  const aja = data(mysqlPool);
 
   // the goal here is minimize the queries a single request is doing
   const loaders = {
-    usersByIds: new DataLoader(aja.getUsersByIds),
-    usersByKeys: new DataLoader(aja.getUsersByApiKeys),
-    namesByContestIds: new DataLoader(aja.getNamesByContestIds),
-    getContestsByUserIds: new DataLoader(aja.getContestsByUserIds)
+    usersByIds: new DataLoader(data(mysqlPool).getUsersByIds),
+    usersByKeys: new DataLoader(data(mysqlPool).getUsersByApiKeys),
+    namesByContestIds: new DataLoader(data(mysqlPool).getNamesByContestIds),
+    getContestsByUserIds: new DataLoader(data(mysqlPool).getContestsByUserIds),
+    getCountsByUserIds: new DataLoader(data(mongoPool).getCountsByUserIds)
   };
 
   graphqlHTTP({

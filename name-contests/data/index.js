@@ -1,7 +1,5 @@
 'use strict';
 
-const humps = require('humps');
-
 const utils = require('../utils');
 
 module.exports = function main(dbConnection) {
@@ -49,18 +47,18 @@ module.exports = function main(dbConnection) {
     );
   }
 
-  function getCountsByUserId(userId, fieldName) {
-    console.log(`db.collection('user').findOne({userId: ${userId}})`);
-
+  function getCountsByUserIds(userIds = []) {
+    console.log(`db.collection('user').find({userId: {$in: ${userIds}}})`);
     return dbConnection
       .collection('users')
-      .findOne({ userId })
-      .then(userCount => userCount[fieldName]);
+      .find({ userId: { $in: userIds } })
+      .toArray()
+      .then(rows => utils.orderedFor(rows, userIds, 'userId'));
   }
 
   return {
     getContestsByUserIds,
-    getCountsByUserId,
+    getCountsByUserIds,
     getNamesByContestIds,
     getUsersByApiKeys,
     getUsersByIds

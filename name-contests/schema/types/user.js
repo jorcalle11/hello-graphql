@@ -34,19 +34,25 @@ module.exports = new GraphQLObjectType({
     contestsCount: {
       type: GraphQLInt,
       resolve: (subtree, args, context, { fieldName }) => {
-        return data(context.mongoPool).getCountsByUserId(subtree.id, fieldName);
+        return context.loaders.getCountsByUserIds
+          .load(subtree.id)
+          .then(res => res[fieldName]);
       }
     },
     namesCount: {
       type: GraphQLInt,
       resolve: (subtree, args, context, { fieldName }) => {
-        return data(context.mongoPool).getCountsByUserId(subtree.id, fieldName);
+        return context.loaders.getCountsByUserIds
+          .load(subtree.id)
+          .then(res => res[fieldName]);
       }
     },
     votesCount: {
       type: GraphQLInt,
       resolve: (subtree, args, context, { fieldName }) => {
-        return data(context.mongoPool).getCountsByUserId(subtree.id, fieldName);
+        return context.loaders.getCountsByUserIds
+          .load(subtree.id)
+          .then(res => res[fieldName]);
       }
     }
   }
